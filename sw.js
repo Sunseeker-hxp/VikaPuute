@@ -1,8 +1,8 @@
 // Service worker: tallentaa sovelluksen tiedostot laitteeseen, jotta se toimii ilman verkkoa.
 // Nosta versionumeroa aina, kun sovelluksen tiedostoja muutetaan.
-const CACHE = 'vikapuute-v1';
+const CACHE = 'vikapuute-v2';
 const ASSETS = [
-  './', 'index.html', 'styles.css', 'js/db.js', 'js/pdf.js', 'js/app.js',
+  './', 'index.html', 'styles.css', 'js/db.js', 'js/pdf.js', 'js/docx.js', 'js/app.js',
   'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 

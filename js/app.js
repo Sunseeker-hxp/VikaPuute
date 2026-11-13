@@ -141,6 +141,8 @@ async function route() {
   const seq = ++routeSeq;
   const pending = cleanup;
   cleanup = [];
+  // Vanha näkymä lukitaan vaihdon ajaksi, ettei siihen ehdi kirjoittaa mitään.
+  $app.classList.add('busy');
   for (const f of pending) {
     try { await f(); } catch (e) { console.error(e); }
   }
@@ -158,12 +160,40 @@ async function route() {
   }
   if (seq !== routeSeq) return;
   $app.replaceChildren(...view.filter(Boolean));
+  $app.classList.remove('busy');
   window.scrollTo(0, 0);
 }
 
 const notFound = () => page({ title: 'Ei löytynyt', back: '#/', body: h('p', { class: 'empty' }, 'Kohdetta ei löytynyt.') });
 
 // ---------- Etusivu ----------
+
+// Kertoo, onko sovellus tallennettu laitteeseen niin, että se aukeaa ilman verkkoa.
+function offlineNote() {
+  const el = h('p', { class: 'note offline' }, 'Tarkistetaan offline-valmiutta…');
+  const set = (ok, text) => { el.textContent = text; el.classList.toggle('ok', ok); };
+  if (!('serviceWorker' in navigator) || !window.caches) {
+    set(false, 'Tämä selain ei tue käyttöä ilman verkkoa.');
+    return el;
+  }
+  (async () => {
+    try {
+      await navigator.serviceWorker.ready;
+      const cache = await caches.open(await currentCache());
+      const ok = !!(await cache.match('js/app.js')) && !!(await cache.match('js/docx.js'));
+      set(ok, ok ? '✓ Valmis käytettäväksi ilman verkkoyhteyttä'
+        : 'Sovellusta ladataan laitteeseen. Pidä verkko päällä hetki ja avaa sovellus uudelleen.');
+    } catch (e) {
+      set(false, 'Offline-käyttöä ei voitu varmistaa.');
+    }
+  })();
+  return el;
+}
+
+async function currentCache() {
+  const keys = (await caches.keys()).filter((k) => k.startsWith('vikapuute-')).sort();
+  return keys[keys.length - 1] || 'vikapuute';
+}
 
 async function viewHome() {
   const docs = await DB.getDocs();
@@ -180,7 +210,8 @@ async function viewHome() {
     body: [
       cards.length ? cards : h('p', { class: 'empty' },
         'Ei vielä dokumentteja. Aloita luomalla itselleluovutus tai vika- ja puutelista.'),
-      h('p', { class: 'note' }, 'Tiedot tallentuvat vain tähän laitteeseen. Sovellus toimii ilman verkkoyhteyttä.'),
+      h('p', { class: 'note' }, 'Tiedot tallentuvat vain tähän laitteeseen.'),
+      offlineNote(),
     ],
     footer: h('a', { class: 'btn primary big', href: '#/new' }, '＋ Uusi dokumentti'),
   });
@@ -252,33 +283,43 @@ async function viewDoc(id) {
     badge.textContent = it.status === 'fixed' ? 'Korjattu' : 'Avoin';
   }
 
-  async function makePdf() {
-    const msg = h('p', {}, 'Luodaan PDF-raporttia…');
-    const close = modal(h('h2', {}, 'PDF-raportti'), msg);
+  function chooseReport() {
+    const close = modal(
+      h('h2', {}, 'Luo raportti'),
+      h('p', {}, 'Valitse tiedostomuoto.'),
+      h('button', { class: 'btn primary', onclick: () => { close(); makeReport('pdf'); } }, 'PDF'),
+      h('button', { class: 'btn primary', onclick: () => { close(); makeReport('docx'); } }, 'Word (.docx)'),
+      h('button', { class: 'btn', onclick: () => close() }, 'Peruuta'));
+  }
+
+  async function makeReport(kind) {
+    const word = kind === 'docx';
+    const msg = h('p', {}, 'Luodaan raporttia…');
+    const close = modal(h('h2', {}, word ? 'Word-raportti' : 'PDF-raportti'), msg);
     try {
-      const blob = await PDFGen.build(doc, items, photoForPdf, {
+      const blob = await (word ? DOCXGen : PDFGen).build(doc, items, photoForPdf, {
         title: TYPES[doc.type].title, typeLabel: TYPES[doc.type].label,
         onProgress: (d, t) => { msg.textContent = `Käsitellään kuvia ${d} / ${t}…`; },
       });
       close();
       const name = `${TYPES[doc.type].label}_${doc.name}_${doc.date || todayISO()}`
-        .replace(/[^0-9A-Za-zÅÄÖåäö-]+/g, '_').replace(/^_+|_+$/g, '') + '.pdf';
-      const file = new File([blob], name, { type: 'application/pdf' });
+        .replace(/[^0-9A-Za-zÅÄÖåäö-]+/g, '_').replace(/^_+|_+$/g, '') + (word ? '.docx' : '.pdf');
+      const file = new File([blob], name, { type: blob.type });
       const url = URL.createObjectURL(blob);
       const canShare = navigator.canShare && navigator.canShare({ files: [file] });
       const done = modal(
-        h('h2', {}, 'PDF valmis'),
+        h('h2', {}, 'Raportti valmis'),
         h('p', {}, `${name} (${(blob.size / 1048576).toFixed(1)} Mt)`),
         canShare ? h('button', {
           class: 'btn primary', onclick: () => navigator.share({ files: [file], title: doc.name }).catch(() => {}),
         }, 'Jaa (sähköposti, WhatsApp…)') : null,
         h('a', { class: 'btn' + (canShare ? '' : ' primary'), href: url, download: name }, 'Tallenna laitteeseen'),
-        h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener' }, 'Avaa'),
+        word ? null : h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener' }, 'Avaa'),
         h('button', { class: 'btn', onclick: () => { done(); setTimeout(() => URL.revokeObjectURL(url), 60000); } }, 'Sulje'));
     } catch (e) {
       console.error(e);
       close();
-      toast('PDF:n luonti epäonnistui: ' + (e && e.message || e));
+      toast('Raportin luonti epäonnistui: ' + (e && e.message || e));
     }
   }
 
@@ -309,7 +350,7 @@ async function viewDoc(id) {
         'Ei vielä havaintoja. Paina ”Uusi havainto”, ota kuva ja sanele mikä on vikana.'),
     ],
     footer: [
-      h('button', { class: 'btn', type: 'button', onclick: makePdf }, 'PDF'),
+      h('button', { class: 'btn', type: 'button', onclick: chooseReport }, 'Raportti'),
       h('a', { class: 'btn primary big', href: `#/d/${id}/i/new` }, '＋ Uusi havainto'),
     ],
   });

@@ -9,7 +9,7 @@ Kierrä kohde, ota puutteesta valokuva ja sanele mikä on vikana. Lopuksi sovell
 - Toimii ilman verkkoyhteyttä. Kaikki tiedot ja kuvat tallentuvat vain puhelimeen.
 - Havaintoon kuuluu valokuvat, sijainti, kuvaus, vastuutaho ja tila (avoin / korjattu).
 - Sanelu tekstiksi puheentunnistuksella (vaatii yleensä verkon) tai äänimuistio (toimii aina).
-- PDF-raportti kuvineen, jaettavissa suoraan puhelimesta.
+- Raportti kuvineen PDF- tai Word-muodossa (.docx), jaettavissa suoraan puhelimesta.
 
 ## Rakenne
 
@@ -21,6 +21,7 @@ Ei käännösvaihetta eikä ulkoisia kirjastoja: pelkät staattiset tiedostot.
 | `js/app.js` | Näkymät ja toiminnot |
 | `js/db.js` | Tallennus laitteen IndexedDB-tietokantaan |
 | `js/pdf.js` | PDF-raportin luonti |
+| `js/docx.js` | Word-raportin (.docx) luonti |
 | `sw.js`, `manifest.webmanifest` | Offline-käyttö ja asennus aloitusnäytölle |
 
 ## Kehitys
