@@ -1,0 +1,135 @@
+:root {
+  --navy: #12324a;
+  --accent: #d9480f;
+  --bg: #f1f3f5;
+  --card: #fff;
+  --text: #16202a;
+  --muted: #5c6770;
+  --line: #d5dae0;
+  --red: #c92a2a;
+  --green: #2b8a3e;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app { max-width: 720px; margin: 0 auto; min-height: 100vh; }
+
+/* Yläpalkki */
+.bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 4px;
+  background: var(--navy); color: #fff;
+  padding: calc(env(safe-area-inset-top) + 6px) 8px 6px;
+}
+.bar h1 { flex: 1; margin: 0; font-size: 19px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-btn { min-width: 48px; height: 48px; display: grid; place-items: center; color: #fff; text-decoration: none; font-size: 34px; line-height: 1; border-radius: 10px; }
+.bar-btn.text { font-size: 16px; padding: 0 8px; }
+.bar-pad { width: 48px; }
+
+main { padding: 12px 12px 110px; }
+
+/* Alapalkin toiminnot */
+.actions {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  display: flex; gap: 10px; max-width: 720px; margin: 0 auto;
+  padding: 10px 12px calc(env(safe-area-inset-bottom) + 10px);
+  background: rgba(241, 243, 245, .96); border-top: 1px solid var(--line);
+}
+.actions .big { flex: 1; }
+
+/* Painikkeet */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 52px; padding: 0 18px;
+  border: 1.5px solid var(--line); border-radius: 12px;
+  background: #fff; color: var(--text);
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.danger { color: var(--red); border-color: #f1c0c0; margin-top: 28px; width: 100%; }
+.btn.live { background: var(--red); border-color: var(--red); color: #fff; }
+.btn:active { filter: brightness(.93); }
+.hidden-input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+
+.row { display: flex; gap: 10px; margin: 12px 0; }
+.row > * { flex: 1; }
+
+/* Listat */
+.card, .item {
+  display: block; background: var(--card); color: inherit; text-decoration: none;
+  border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
+}
+.card strong { display: block; font-size: 19px; margin: 6px 0 2px; }
+.card small, .item small { color: var(--muted); font-size: 14px; }
+
+.item { display: flex; align-items: center; gap: 12px; padding: 10px; }
+.item img, .nothumb { width: 64px; height: 64px; flex: none; border-radius: 8px; object-fit: cover; background: #e3e7eb; }
+.nothumb { display: grid; place-items: center; color: var(--muted); }
+.item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.item-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desc { color: #37424c; font-size: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 13px; font-weight: 700; color: #fff; background: var(--navy); }
+.badge.vikapuute { background: #7048a8; }
+
+.status { flex: none; min-height: 40px; padding: 0 12px; border-radius: 999px; border: 0; font: inherit; font-size: 14px; font-weight: 700; color: #fff; background: var(--red); cursor: pointer; }
+.status.fixed { background: var(--green); }
+
+.summary { margin: 2px 2px 14px; color: #37424c; }
+.empty { text-align: center; color: var(--muted); padding: 40px 16px; }
+.note { text-align: center; color: var(--muted); font-size: 14px; margin-top: 22px; }
+
+/* Lomakkeet */
+.field { display: block; margin: 14px 0; }
+.field > span { display: block; font-size: 14px; font-weight: 700; color: #37424c; margin-bottom: 5px; }
+input[type="text"], input[type="date"], textarea {
+  width: 100%; min-height: 50px; padding: 12px;
+  border: 1.5px solid var(--line); border-radius: 10px;
+  background: #fff; color: var(--text); font: inherit;
+  -webkit-appearance: none; appearance: none;
+}
+textarea { resize: vertical; }
+input:focus, textarea:focus { outline: 2px solid var(--navy); outline-offset: 0; border-color: var(--navy); }
+
+.seg { display: flex; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+.seg button { flex: 1; min-height: 50px; border: 0; background: none; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+.seg button + button { border-left: 1.5px solid var(--line); }
+.seg button.on { background: var(--navy); color: #fff; }
+
+/* Havainnon kuvat ja äänet */
+.photos { display: flex; gap: 8px; overflow-x: auto; }
+.photos:empty { display: none; }
+.photo { position: relative; flex: none; }
+.photo img { height: 150px; max-width: 240px; border-radius: 10px; display: block; object-fit: cover; }
+.photo button, .audio button {
+  width: 36px; height: 36px; border-radius: 50%; border: 0;
+  background: rgba(0, 0, 0, .65); color: #fff; font-size: 16px; cursor: pointer;
+}
+.photo button { position: absolute; top: 6px; right: 6px; }
+.audio { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.audio audio { flex: 1; min-width: 0; height: 44px; }
+.voice-status { margin: 0 0 8px; padding: 10px 12px; border-radius: 10px; background: #fff3bf; font-weight: 600; }
+
+/* Ilmoitukset */
+.toast {
+  position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 90px); z-index: 30;
+  max-width: 500px; margin: 0 auto; padding: 14px 16px; border-radius: 12px;
+  background: #212529; color: #fff; text-align: center; box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+}
+.modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .6); }
+.modal-box { width: 100%; max-width: 420px; max-height: 92vh; overflow: auto; background: #fff; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.modal-box h2 { margin: 0; font-size: 20px; }
+.modal-box p { margin: 0; overflow-wrap: anywhere; }
+.modal-box .full { width: 100%; border-radius: 8px; }
